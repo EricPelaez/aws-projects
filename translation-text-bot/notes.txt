@@ -1,0 +1,5 @@
+made a empty chatbox with lex
+created an iam role with TranslateFullAccess
+AWSLambdaBasicExecutionRole
+
+then made a lambda function that extracts the user's input text and the target language from the Lex event. 

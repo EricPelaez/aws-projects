@@ -1,0 +1,10 @@
+made an iam role with AmazonPollyFullAccess
+AmazonS3FullAccess
+AWSLambdaBasicExecutionRole
+
+made a s3 bucket to store the audio file made by polly
+
+then made a lambad function
+function gets a message with some text, we're going to make it into speech
+
+ then save this speech in our S3 storage

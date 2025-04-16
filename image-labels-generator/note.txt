@@ -1,0 +1,9 @@
+made a s3 bucket to contina the image
+made a user with IAM , gave it adminstartorAcces
+ configured our AWS CLI with the new user with its acces key and secrett acces key
+ and there was a function that
+    We create a Rekognition client using boto3.
+    We use the detect_labels method of the Rekognition client to detect labels in the given photo.
+    We print the detected labels along with their confidence levels.
+    We load the image from the S3 bucket using boto3 and PIL.
+    We use matplotlib to display the image and draw bounding boxes around the detected objects.
