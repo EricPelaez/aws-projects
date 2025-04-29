@@ -1,5 +1,5 @@
 {
-  "CloudDictionary": [
+  "<YOUR_TABLE_NAME>": [
     {
       "PutRequest": { 
         "Item": {
