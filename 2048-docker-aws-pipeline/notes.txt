@@ -1,0 +1,60 @@
+I guess before staring this project you will need docker and aws cli installed/updated
+
+make some keys 
+
+then using the keys , you will confihure aws
+
+cloned the code from github repo
+
+docker build -t 2048-game .
+
+build the docker image with the command from above 
+
+then went to aws and made an ecr repo
+
+did this docker tag 2048-game:latest <ECR_URI>:latest 
+
+did this aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin <ECR_URI> but had to chnage th region
+
+did this docker push <ECR_URI>:latest
+
+and if all of this wokred chech aws ecr
+
+made a role , choose aws sevce then choose use case ecs then name the role, so when making the role you have to add the polci
+
+crea an ecs cluster name it and leave everything default
+
+
+Register a Task Definition
+
+ti do this you neeed to go to ecs, go to task defintions and crew new task defination 
+
+chose fargate as luanch tyep
+
+in containr , add a name and add your ecr image uri :latest
+
+Port mappings: Host port 80 → Container port 80
+and create 
+
+
+Create a Service
+
+go to ecs and clicked on the cluster we created ealier
+
+go to services tab  and click crate 
+
+
+Launch type: FARGATE
+Task Definition: `2048-game-task`
+Service name: `2048-service`
+Number of tasks: `1 '
+
+Under Network, choose default VPC and subnets, Public IP = ENABLED
+
+For Security group, select (or create) one allowing HTTP (port 80)
+
+Next step → Create service → View service.
+
+and after this find the publc ip  in cluster(you made), click on the running task, go to network and you found the public ip
+
+http://<Public-IP>:80
