@@ -58,3 +58,14 @@ Next step → Create service → View service.
 and after this find the publc ip  in cluster(you made), click on the running task, go to network and you found the public ip
 
 http://<Public-IP>:80
+
+Update the `buildspec.yml` 
+
+made a role with these policues
+
+
+AmazonEC2ContainerRegistryFullAccess: Allows CodeBuild to interact with ECR (Elastic Container Registry).
+
+AWSCodeBuildDeveloperAccess: Grants permissions for CodeBuild to access build-related resources.
+
+AmazonS3FullAccess: Grants access to read/write to S3 buckets (for storing build artifacts).
