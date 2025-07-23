@@ -69,3 +69,12 @@ AmazonEC2ContainerRegistryFullAccess: Allows CodeBuild to interact with ECR (Ela
 AWSCodeBuildDeveloperAccess: Grants permissions for CodeBuild to access build-related resources.
 
 AmazonS3FullAccess: Grants access to read/write to S3 buckets (for storing build artifacts).
+
+
+not project configs
+
+1 leave source version blank
+
+that got me build logs
+
+2 updated buildspec

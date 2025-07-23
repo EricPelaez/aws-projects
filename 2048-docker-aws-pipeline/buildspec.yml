@@ -5,6 +5,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 783764616094.dkr.ecr.us-east-2.amazonaws.com/2048-game-repo
+      - cd 2048-docker-aws-pipeline
   build:
     commands:
       - echo Building the Docker image...
@@ -20,4 +21,4 @@ phases:
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - 2048-docker-aws-pipeline/imagedefinitions.json
