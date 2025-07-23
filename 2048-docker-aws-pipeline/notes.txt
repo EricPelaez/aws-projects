@@ -78,3 +78,10 @@ not project configs
 that got me build logs
 
 2 updated buildspec
+
+[Container] 2025/07/23 15:42:19.051850 Phase context status code: YAML_FILE_ERROR Message: YAML file does not exist
+
+
+3 editing the buildspec to look at the folder
+
+it worked yessssssssssssssss
