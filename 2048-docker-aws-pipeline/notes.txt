@@ -1,87 +1,171 @@
-I guess before staring this project you will need docker and aws cli installed/updated
+Deploying the 2048 Game Using Docker, AWS ECR, ECS Fargate, CodeBuild, and CodePipeline
+=======================================================================================
 
-make some keys 
+Starting Off: Installing Tools
+------------------------------
+Before starting this project, I made sure I had Docker and the AWS CLI installed and updated on my machine. These were necessary because I needed to build Docker images locally and interact with AWS services through the CLI.
 
-then using the keys , you will confihure aws
+After that, I created access keys in the AWS IAM console. With those, I ran:
 
-cloned the code from github repo
+    aws configure
 
-docker build -t 2048-game .
+This configured my AWS credentials so I could use the CLI.
 
-build the docker image with the command from above 
+Cloning the Code & Building the Docker Image
+--------------------------------------------
+I cloned the GitHub repo that contained the 2048 game:
 
-then went to aws and made an ecr repo
+    git clone <your-repo-url>
+    cd <project-folder>
 
-did this docker tag 2048-game:latest <ECR_URI>:latest 
+Then I built the Docker image:
 
-did this aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin <ECR_URI> but had to chnage th region
+    docker build -t 2048-game .
 
-did this docker push <ECR_URI>:latest
+This packaged the app into a Docker image named '2048-game'.
 
-and if all of this wokred chech aws ecr
+Setting Up ECR and Pushing the Image
+------------------------------------
+I created an ECR repository in the AWS Console.
 
-made a role , choose aws sevce then choose use case ecs then name the role, so when making the role you have to add the polci
+Then I tagged my image with the ECR URI:
 
-crea an ecs cluster name it and leave everything default
+    docker tag 2048-game:latest <ECR_URI>:latest
 
+I logged into ECR:
 
-Register a Task Definition
+    aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin <ECR_URI>
 
-ti do this you neeed to go to ecs, go to task defintions and crew new task defination 
+Note: I had to change the region to match the one where my ECR repo was created.
 
-chose fargate as luanch tyep
+After logging in, I pushed the image:
 
-in containr , add a name and add your ecr image uri :latest
+    docker push <ECR_URI>:latest
 
-Port mappings: Host port 80 → Container port 80
-and create 
+I checked the ECR Console to confirm the image was there.
 
+Creating Roles for ECS
+----------------------
+I created an IAM role for ECS:
 
-Create a Service
+- Went to IAM > Roles > Create role
+- Selected AWS Service as the trusted entity
+- Chose "Elastic Container Service" as the use case
+- Named it `AWSServiceRoleForECS`
 
-go to ecs and clicked on the cluster we created ealier
+ECS Cluster & Task Setup
+------------------------
+I went to ECS > Clusters > Create Cluster:
+- Named it `2048-game-cluster`
+- Infrastructure: AWS Fargate
+- Left all defaults and created the cluster
 
-go to services tab  and click crate 
+Registering the Task Definition
+-------------------------------
+In ECS > Task Definitions > Create New:
+- Launch type: Fargate
+- Added a container with the ECR image URI
+- Set port mappings: 80 → 80
+- Created the task definition
 
+Creating the ECS Service
+------------------------
+In the ECS cluster I created earlier:
+- Went to the Services tab and clicked "Create"
+- Launch type: FARGATE
+- Task Definition: `2048-game-task`
+- Service name: `2048-service`
+- Number of tasks: 1
+- Network: selected default VPC and subnets, enabled Public IP
+- Security group: allowed HTTP (port 80)
 
-Launch type: FARGATE
-Task Definition: `2048-game-task`
-Service name: `2048-service`
-Number of tasks: `1 '
+After creating the service:
+- I went to the cluster → Tasks tab → clicked on the running task
+- Under the Networking tab, I found the public IP
+- I visited http://<Public-IP>:80 to test — the game was live!
 
-Under Network, choose default VPC and subnets, Public IP = ENABLED
+Setting Up CodeBuild
+--------------------
+I updated `buildspec.yml` to build, tag, and push the Docker image.
 
-For Security group, select (or create) one allowing HTTP (port 80)
+Created an IAM role for CodeBuild and attached these policies:
+- AmazonEC2ContainerRegistryFullAccess
+- AWSCodeBuildDeveloperAccess
+- AmazonS3FullAccess
 
-Next step → Create service → View service.
+Then I added an inline policy to allow ECS updates:
 
-and after this find the publc ip  in cluster(you made), click on the running task, go to network and you found the public ip
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "ecs:UpdateService",
+                    "ecs:DescribeServices"
+                ],
+                "Resource": "<ECS_SERVICE_ARN>"
+            }
+        ]
+    }
 
-http://<Public-IP>:80
+I got the ECS Service ARN from ECS > Clusters > Services.
 
-Update the `buildspec.yml` 
+Setting Up S3 for Artifacts
+---------------------------
+I created an S3 bucket called `2048-ci-cd-pipeline-artifacts1` to store build outputs like Docker images and logs.
 
-made a role with these policues
+Creating the CodeBuild Project
+------------------------------
+In CodeBuild > Create Build Project:
+- Source: GitHub (OAuth App)
+- Left source version blank
+- Enabled privileged mode
+- Modified the buildspec file to look in the correct folder
+- Used the existing IAM role I created
+- Artifacts: Amazon S3 → selected the bucket I created above
 
+I started a build — it worked and pushed the image to ECR.
 
-AmazonEC2ContainerRegistryFullAccess: Allows CodeBuild to interact with ECR (Elastic Container Registry).
+Creating CodePipeline
+---------------------
+I went to CodePipeline > Create Pipeline and selected "Custom pipeline":
+- Let AWS create a service role for me
 
-AWSCodeBuildDeveloperAccess: Grants permissions for CodeBuild to access build-related resources.
+Source Stage:
+- Provider: GitHub (OAuth)
+- Repository: 2048 game repo
+- Branch: main
 
-AmazonS3FullAccess: Grants access to read/write to S3 buckets (for storing build artifacts).
+Build Stage:
+- Provider: AWS CodeBuild
+- Project: `2048-game-build`
 
+Deploy Stage:
+- Provider: Amazon ECS
+- Cluster: `2048-game-cluster`
+- Service: `2048-service`
 
-not project configs
+After creating the pipeline, everything was ready to test.
 
-1 leave source version blank
+Testing the Pipeline
+--------------------
+I opened `index.html` and changed the title on line 22 to:
 
-that got me build logs
+    <h1 class="title">2048 - Eric's Edition</h1>
 
-2 updated buildspec
+Then I committed and pushed the change:
 
-[Container] 2025/07/23 15:42:19.051850 Phase context status code: YAML_FILE_ERROR Message: YAML file does not exist
+    git add .
+    git commit -m "Changed game title"
+    git push origin main
 
+The pipeline triggered automatically — it built the new image, pushed it to ECR, and ECS deployed the update.
 
-3 editing the buildspec to look at the folder
+To verify, I went to ECS > Cluster > `2048-game-cluster` → Tasks tab → clicked on the latest running task.
 
-it worked yessssssssssssssss
+Under the Networking tab, I found the public IP and opened:
+
+    http://<ip_address>:80
+
+The new game title showed up. The CI/CD pipeline worked!
