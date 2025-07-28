@@ -5,7 +5,7 @@ import yfinance as yf
 
 # AWS Kinesis Configuration
 kinesis_client = boto3.client('kinesis', region_name='us-east-1')
-STREAM_NAME = "<YOUR_DATA_STREAM_NAME>"  # Replace with your actual stream name
+STREAM_NAME = "stock-market-stream"  # Replace with your actual stream name
 STOCK_SYMBOL = "AAPL"
 DELAY_TIME = 30  # Time delay in seconds
 
