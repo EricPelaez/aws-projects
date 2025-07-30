@@ -28,8 +28,3 @@ made an iam role with- 'AmazonKinesisFullAccess` (Read from Kinesis).
 made a lamda with role we just made
 added kinies as a trigger
 Add a Batch size of 2
-
-testing changes in the new repo in a folder
-
-
-helloooooooooooooo
