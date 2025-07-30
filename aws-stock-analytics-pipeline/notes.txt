@@ -1,0 +1,30 @@
+the first thing I did was a made a kiniesis data stream 
+Data Stream Capacity Mode → Select On-demand
+Retention Period → Keep the default 24 hours.
+
+Configured AWS Credentials 
+
+Python Script to Stream Stock Data from yahoo- this sends data tothe kiniesis data strean 
+
+and ran to make sore it outputing the correct data
+
+also checked kinesis to see it going there
+
+
+Created a DynamoDB Table
+with 
+Partition Key: `symbol` (String).
+Sort Key: `timestamp` (String).
+
+made a s3 bucket for raw data
+
+
+made an iam role with- 'AmazonKinesisFullAccess` (Read from Kinesis).
+- `AmazonDynamoDBFullAccess` (Write to DynamoDB).
+- `AWSLambdaBasicExecutionRole` (CloudWatch logging).
+`- AmazonS3FullAccess` (Write to S3).
+
+
+made a lamda with role we just made
+added kinies as a trigger
+Add a Batch size of 2
