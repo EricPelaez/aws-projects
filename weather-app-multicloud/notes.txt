@@ -1,2 +1,35 @@
 not done with this project yet and its because the registry is taking a while , searched online and believe its an issue out of my hands
 so yeah
+
+Fixing Azure Terraform Authentication Issue
+
+Problem:
+Terraform failed with SubscriptionNotFound and MFA (AADSTS50076) errors due to an old Azure subscription.
+
+Steps Taken:
+
+Cleared old Azure sessions:
+
+az account clear
+
+
+Logged in with device code to handle MFA:
+
+az login --use-device-code --tenant f76b0d7e-b9ad-4042-ba46-910bc0e7d890
+
+
+Selected the correct subscription (bab909b1-28cf-4bfb-b5c3-3d8b777e2cd9).
+
+Verified active account:
+
+az account show --output table
+
+
+Updated Terraform vars with new subscription ID.
+
+Re-ran:
+
+terraform destroy
+
+
+✅ Worked successfully.
